@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ko">
+{% load static %}
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VibeAI - 감정으로 찾기</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="recommendation-page">
+  <header>
+    <div>
+      <a href="main.html"><img src="{% static 'images/LOGO.svg' %}" alt="Icon" style="height:40px; vertical-align: middle;"></a>
+    </div>
+  </header>
+  <header style="border-bottom:none; padding-top:0;">
+    <div class="topnav">
+      <a href="#emotion">Find by Emotion</a>
+      <a href="#playlist">My Playlist</a>
+      <a href="#about">About VibeAI</a>
+      <a href="#contact">Contact / Feedback</a>
+    </div>
+  </header>
+  <div class="container">
+    <h1>지금 느끼는 감정이나 원하는 감정을 선택해 주세요</h1>
+
+    <form id="keyword-form" method="post" action="{% url 'recommendation:result' %}">
+      {% csrf_token %}
+
+      <!-- 선택된 키워드가 시각적으로 쌓이는 영역 -->
+      <div class="selected-keywords">
+        <div class="group emotions-group"></div>
+        <div class="group years-group"></div>
+        <div class="group nation-group"></div>
+      </div>
+
+      <!-- STEP 1: 감정 선택 -->
+      <div id="step-1" class="step active">
+        <div class="emotions">
+          <button type="button" class="btn" data-name="emotions" data-value="Delighted">Delighted</button>
+          <button type="button" class="btn" data-name="emotions" data-value="Depressed">Depressed</button>
+          <button type="button" class="btn" data-name="emotions" data-value="Happy">Happy</button>
+          <button type="button" class="btn" data-name="emotions" data-value="Tired">Tired</button>
+          <button type="button" class="btn" data-name="emotions" data-value="Anxious">Anxious</button>
+          <button type="button" class="btn" data-name="emotions" data-value="Calm">Calm</button>
+          <button type="button" class="btn" data-name="emotions" data-value="Angry">Angry</button>
+          <button type="button" class="btn" data-name="emotions" data-value="Satisfied">Satisfied</button>
+        </div>
+        <div class="nav-btns">
+          <span></span>
+          <button id="next-1" type="button" class="btn">NEXT</button>
+        </div>
+      </div>
+
+      <!-- STEP 2: 연도 선택 -->
+      <div id="step-2" class="step">
+        <div class="years">
+          <button type="button" class="btn" data-name="years" data-value="1990년대">1990년대</button>
+          <button type="button" class="btn" data-name="years" data-value="2000년대">2000년대</button>
+          <button type="button" class="btn" data-name="years" data-value="2010년대">2010년대</button>
+          <button type="button" class="btn" data-name="years" data-value="2020년대">2020년대</button>
+        </div>
+        <div class="nav-btns">
+          <button id="back-2" type="button" class="btn">BACK</button>
+          <button id="next-2" type="button" class="btn">NEXT</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: 국가 선택 -->
+      <div id="step-3" class="step">
+        <div class="nation">
+          <button type="button" class="btn" data-name="nation" data-value="서양">서양</button>
+          <button type="button" class="btn" data-name="nation" data-value="한국">한국</button>
+          <button type="button" class="btn" data-name="nation" data-value="일본">일본</button>
+        </div>
+        <div class="nav-btns">
+          <button id="back-3" type="button" class="btn">BACK</button>
+          <button id="finish" type="submit" class="btn">FINISH</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // 현재 화면에 보일 step만 visible 처리
+    function showStep(n) {
+      document.querySelectorAll('.step').forEach(sec => {
+        sec.classList.toggle('active', sec.id === 'step-' + n);
+      });
+    }
+
+    // STEP 간 이동 버튼 핸들러
+    document.getElementById('next-1').onclick = () => {
+      // STEP 1에서 감정 키워드가 선택되었는지 검사
+      const selectedEmotions = document.querySelectorAll('input[name="emotions"]');
+      if (selectedEmotions.length === 0) {
+        alert('감정을 하나 이상 선택해주세요.');
+        return;
+      }
+      showStep(2);
+    };
+
+    document.getElementById('back-2').onclick = () => showStep(1);
+
+    document.getElementById('next-2').onclick = () => {
+      // STEP 2에서 연도 키워드가 선택되었는지 검사
+      const selectedYears = document.querySelectorAll('input[name="years"]');
+      if (selectedYears.length === 0) {
+        alert('연도를 하나 이상 선택해주세요.');
+        return;
+      }
+      showStep(3);
+    };
+
+    document.getElementById('back-3').onclick = () => showStep(2);
+
+    // FINISH (submit) 시점에 서버로 전송하기 전 검사
+    document.getElementById('keyword-form').addEventListener('submit', function(e) {
+      const selectedNation = document.querySelectorAll('input[name="nation"]');
+      if (selectedNation.length === 0) {
+        e.preventDefault();  // 폼 제출 중단
+        alert('국가를 하나 이상 선택해주세요.');
+      }
+      // else: 정상적으로 submit → select_keywords 뷰로 전송
+    });
+
+    // 각 그룹별 토글 로직: 화면에 칩 생성/삭제 + form 내부 hidden input 생성/삭제
+    const groups = {
+      emotions: {
+        container: document.querySelector('.emotions'),
+        chips: document.querySelector('.emotions-group')
+      },
+      years: {
+        container: document.querySelector('.years'),
+        chips: document.querySelector('.years-group')
+      },
+      nation: {
+        container: document.querySelector('.nation'),
+        chips: document.querySelector('.nation-group')
+      }
+    };
+
+    Object.keys(groups).forEach(groupName => {
+      const { container, chips } = groups[groupName];
+
+      container.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const kw = btn.dataset.value;
+          const existChip = Array.from(chips.children).find(c => c.textContent === kw);
+
+          if (existChip) {
+            // 이미 선택된 경우: 칩 제거 + form 내부 hidden input 제거
+            chips.removeChild(existChip);
+            btn.classList.remove('selected');
+
+            const inputToRemove = document.querySelector(
+              `input[type="checkbox"][name="${groupName}"][value="${kw}"]`
+            );
+            if (inputToRemove) {
+              inputToRemove.parentNode.removeChild(inputToRemove);
+            }
+          } else {
+            // 새로 선택된 경우: 칩 추가 + hidden input 생성
+            const chip = document.createElement('div');
+            chip.className = 'chip';
+            chip.textContent = kw;
+            chips.appendChild(chip);
+            btn.classList.add('selected');
+
+            const input = document.createElement('input');
+            input.type = 'checkbox';
+            input.checked = true;
+            input.name = groupName;   // ex: "emotions", "years", "nation"
+            input.value = kw;
+            input.style.display = 'none';
+            document.getElementById('keyword-form').appendChild(input);
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

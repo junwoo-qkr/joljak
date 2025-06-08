@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeAI</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="main-page">
+    <header>
+        <div>
+            <a href="main.html"><img src="{% static 'images/LOGO.svg' %}" alt="Icon" style="height:40px; vertical-align: middle;"></a>
+        </div>
+    </header>
+    <header style="border-bottom:none; padding-top:0;">
+        <div class="topnav">
+            <a href="#emotion">Find by Emotion</a>
+            <a href="#playlist">My Playlist</a>
+            <a href="#about">About VibeAI</a>
+            <a href="#contact">Contact / Feedback</a>
+        </div>
+    </header>
+    <section class="hero">
+        <img src={% static 'images/LOGO.png' %} alt="VibeAI Heart Logo">
+        <h1>VibeAI</h1>
+        <p>당신의 기분에 맞는 음악을 AI가 추천해드립니다.</p>
+        <button class="btn" onclick="location.href='{% url 'recommendation:sc' %}'">시작하기</button>
+    </section>
+</body>
+</html>

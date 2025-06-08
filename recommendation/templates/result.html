@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeAI - 추천 결과</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="result-page">
+    <header>
+        <div>
+            <a href="main.html"><img src="{% static 'images/LOGO.svg' %}" alt="Icon" style="height:40px; vertical-align: middle;"></a>
+        </div>
+    </header>
+    <header style="border-bottom:none; padding-top:0;">
+        <div class="topnav">
+            <a href="#emotion">Find by Emotion</a>
+            <a href="#playlist">My Playlist</a>
+            <a href="#about">About VibeAI</a>
+            <a href="#contact">Contact / Feedback</a>
+        </div>
+    </header>
+    <div class="container">
+        <h1>추천 결과</h1>
+        <div class="selected-keywords">
+            {% for kw in e %}
+                <div class="chip">{{ kw }}</div>
+            {% endfor %}
+            {# 연도 리스트 y #}
+            {% for kw in y %}
+                <div class="chip">{{ kw }}</div>
+            {% endfor %}
+            {# 국가 리스트 n #}
+            {% for kw in n %}
+                <div class="chip">{{ kw }}</div>
+            {% endfor %}
+        </div>
+        <div class="results">
+            <table>
+                <thead>
+                    <tr><th>Title</th><th>artist</th><th>album</th><th>발매 일자</th></tr>
+                </thead>
+                <tbody>
+                    {% for song in songs %}
+                        <tr>
+                            <td>{{ song.0 }}</td>
+                            <td>{{ song.1 }}</td>
+                            <td>{{ song.2 }}</td>
+                            <td>{{ song.3 }}</td>
+                        </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4">조건에 맞는 곡이 없습니다.</td>
+                    </tr>
+                    {% endfor %}
+            </table>
+        </div>
+        <div class="back-btn-container">
+            <button class="btn" onclick="location.href='https://www.youtube.com'">노래 들으러 가기</button>
+            <button class="btn" onclick="location.href='{% url 'recommendation:start' %}'">처음 화면으로</button>
+        </div>
+    </div>
+</body>
+</html>

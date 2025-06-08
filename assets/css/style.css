@@ -1,0 +1,188 @@
+/* ===== 공통 스타일 ===== */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
+  color: #333;
+  background-color: #fff;
+}
+header {
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  border-bottom: 1px solid #eee;
+}
+.topnav {
+  background-color: #333;
+  overflow: hidden;
+}
+.topnav a {
+  float: left;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 20px;
+}
+.topnav a:hover {
+  background-color: #ddd;
+  color: black;
+}
+.btn {
+  display: inline-flex;           /* flex container로 변경 */
+  justify-content: center;        /* 수평 가운데 정렬 */
+  align-items: center;            /* 수직 가운데 정렬 */
+  background-color: #ddd;
+  border: none;
+  color: black;
+  padding: 16px 32px;
+  text-align: center;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition: 0.3s;
+}
+.btn:hover {
+  background-color: #333;
+  color: white;
+}
+
+/* ===== main.html 전용 ===== */
+.main-page .hero {
+  text-align: center;
+  padding: 60px 20px;
+}
+.main-page .hero img {
+  max-width: 200px;
+  width: 100%;
+  height: auto;
+}
+.main-page .hero h1 {
+  margin-top: 20px;
+  font-size: 2.5rem;
+  font-weight: normal;
+}
+.main-page .hero p {
+  margin-top: 16px;
+  font-size: 1.2rem;
+  color: #555;
+}
+
+/* ===== recommendation.html 전용 ===== */
+.recommendation-page .container {
+  max-width: 960px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+.recommendation-page h1 {
+  font-size: 2rem;
+  margin-bottom: 30px;
+}
+/* 선택된 키워드 그룹 */
+.recommendation-page .selected-keywords {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+.recommendation-page .selected-keywords .group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.recommendation-page .chip {
+  background-color: #e0e0e0;
+  padding: 8px 16px;
+  border-radius: 16px;
+  font-size: 0.9rem;
+}
+/* 버튼 그리드 레이아웃 */
+.recommendation-page .emotions,
+.recommendation-page .years,
+.recommendation-page .nation {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.recommendation-page .emotions button.selected,
+.recommendation-page .years button.selected,
+.recommendation-page .nation button.selected {
+  background: #333;
+  color: white;
+}
+/* 단계별 화면 숨김/표시 */
+.recommendation-page .step {
+  display: none;
+}
+.recommendation-page .step.active {
+  display: block;
+}
+/* 내비게이션 버튼 영역 */
+.recommendation-page .nav-btns {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 40px;
+}
+.recommendation-page .back-btn {
+  background: #bbb;
+}
+
+/* ===== recommendation_result.html 전용 ===== */
+.result-page .container {
+  max-width: 960px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+.result-page .subtitle {
+  display: inline-block;
+  background-color: #f0f0f0;
+  padding: 4px 12px;
+  margin-bottom: 20px;
+  font-size: 1rem;
+  border-radius: 4px;
+}
+.result-page h1 {
+  font-size: 2rem;
+  margin-bottom: 30px;
+}
+.result-page .selected-keywords {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+.result-page .selected-keywords .chip {
+  background-color: #e0e0e0;
+  padding: 8px 16px;
+  border-radius: 16px;
+  font-size: 0.9rem;
+}
+.result-page .results {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 60px;
+}
+.result-page table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.result-page th, .result-page td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  font-size: 0.95rem;
+}
+.result-page th {
+  font-weight: bold;
+}
+.result-page .back-btn-container {
+  text-align: right;
+}
+.result-page .back-btn-container button {
+  padding: 12px 24px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 16px;
+  background-color: #e0e0e0;
+  cursor: pointer;
+}
