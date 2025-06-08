@@ -116,7 +116,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = '/templates/staic/' # 브라우저가 정적 파일에 접근할 때 사용할 URL 경로
+STATIC_URL = '/staic/' # 브라우저가 정적 파일에 접근할 때 사용할 URL 경로
 STATIC_ROOT = BASE_DIR / 'assets' # collectstatics 명령 실행 시 정적 파일이 모일 경로
 
 # Default primary key field type
