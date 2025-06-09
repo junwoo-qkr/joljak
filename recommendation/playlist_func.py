@@ -1,14 +1,7 @@
-import numpy as np
-import pandas as pd
-import os
+import random
+from recommendation.models import music_list
 
 def get_playlist(e, y, n):
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    excel_path = os.path.join(base_dir, 'music_list.xlsx')
-    df = pd.read_excel(excel_path)
-    df = df[['nation', 'title', 'artist', 'album', 'year', 'y', 'sector']]
-    # df['sector'] = df['sector'].astype(int)
-
     emotion_dict = {'Delighted': 0,
                     'Happy': 1,
                     'Anxious': 2,
@@ -18,13 +11,26 @@ def get_playlist(e, y, n):
                     'Calm': 6,
                     'Satisfied': 7
                     }
-    
     emo_code = emotion_dict[e[0]]
-    mask = df['nation'].isin(n) & df['y'].isin(y) & (df['sector'] == emo_code)
-    dst = df.loc[mask]
-    dst = dst.sample(n=min(5, len(dst)), random_state=None)
-    
-    print(emo_code, e, y, n)
-    print(dst.head())
 
-    return(dst['title'].tolist(), dst['artist'].tolist(), dst['album'].tolist(), dst['year'].tolist())
+    qs = music_list.objects.filter(
+        nation__in = n,
+        y__in = y,
+        sector = emo_code,
+    )
+    
+    count = qs.count()
+    if count == 0:
+        return [], [], [], [], []
+    
+    ids = list(qs.values_list('id', flat=True))
+    sample_ids = random.sample(ids, min(5, count))
+    samples = music_list.objects.filter(id__in=sample_ids)
+
+    titles = [m.title for m in samples]
+    artists = [m.artist for m in samples]
+    albums = [m.album for m in samples]
+    years = [m.year for m in samples]
+    links = [m.link for m in samples]
+
+    return titles, artists, albums, years, links

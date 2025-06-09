@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-eya8g@%p$=nymhj(rp(tyq(jt@9h#fn+i)x&%k^c)i9ua%$bis'
+SECRET_KEY = 'p8oU|%.X/vyFaWg.{mxvx]{^r@Y_I2k0WH&I/1ryPJMw160zs*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -116,7 +115,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = '/staic/' # 브라우저가 정적 파일에 접근할 때 사용할 URL 경로
+STATIC_URL = '/static/' # 브라우저가 정적 파일에 접근할 때 사용할 URL 경로
 STATIC_ROOT = BASE_DIR / 'assets' # collectstatics 명령 실행 시 정적 파일이 모일 경로
 
 # Default primary key field type

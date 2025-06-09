@@ -14,7 +14,7 @@ def result(request):
     YEARS = request.POST.getlist('years')
     NATION = request.POST.getlist('nation')
     # print(EMOTIONS, YEARS, NATION)
-    title, artist, album, year = get_playlist(EMOTIONS, YEARS, NATION)
+    title, artist, album, year, link = get_playlist(EMOTIONS, YEARS, NATION)
     songs = list(zip(title, artist, album, year))
     print(title, artist, album, year)
     return render(request, 'result.html',
