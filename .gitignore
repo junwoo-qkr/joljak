@@ -3,3 +3,4 @@
 __pycache__ 
 .DS_Store
 management/
+client_secret.json
