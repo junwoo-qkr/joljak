@@ -22,10 +22,23 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'p8oU|%.X/vyFaWg.{mxvx]{^r@Y_I2k0WH&I/1ryPJMw160zs*'
 
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+
+# OAuth 클라이언트 JSON 파일 경로
+YOUTUBE_CLIENT_SECRETS_FILE = BASE_DIR / 'client_secret.json'
+
+# YouTube Data API 사용 범위
+YOUTUBE_SCOPES = ['https://www.googleapis.com/auth/youtube']
+
+if DEBUG == True:
+    YOUTUBE_OAUTH2_CALLBACK = 'http://127.0.0.1:8000/recommendation/oauth2callback/' # 로컬 테스트용
+    ALLOWED_HOSTS = []
+elif DEBUG == False:
+    YOUTUBE_OAUTH2_CALLBACK = 'https://qkrjunwoo.pythonanywhere.com/recommendation/oauth2callback/' # 배포용
+    ALLOWED_HOSTS = ['qkrjunwoo.pythonanywhere.com']
 
 
 # Application definition

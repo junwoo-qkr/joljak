@@ -57,7 +57,11 @@
             </table>
         </div>
         <div class="back-btn-container">
-            <button class="btn" onclick="location.href='https://www.youtube.com'">노래 들으러 가기</button>
+            {% if link %}
+                <button class="btn" onclick="location.href='{{ link }}'">노래 들으러 가기</button>
+            {% else %}
+                <button class="btn" onclick="location.href='https://www.youtube.com'">노래 들으러 가기</button>
+            {% endif %}
             <button class="btn" onclick="location.href='{% url 'recommendation:start' %}'">처음 화면으로</button>
         </div>
     </div>
