@@ -36,10 +36,11 @@ YOUTUBE_SCOPES = ['https://www.googleapis.com/auth/youtube']
 if DEBUG == True:
     YOUTUBE_OAUTH2_CALLBACK = 'http://127.0.0.1:8000/recommendation/oauth2callback/' # 로컬 테스트용
     ALLOWED_HOSTS = []
+    LASTFM_API_KEY = '1e6894a975c28a115a401c780281bb36'
 elif DEBUG == False:
     YOUTUBE_OAUTH2_CALLBACK = 'https://qkrjunwoo.pythonanywhere.com/recommendation/oauth2callback/' # 배포용
     ALLOWED_HOSTS = ['qkrjunwoo.pythonanywhere.com']
-
+    LASTFM_API_KEY = 'ac51f31332764eb6416d46b1bfee6f34'
 
 # Application definition
 
