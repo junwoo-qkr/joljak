@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>플레이리스트 히스토리</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 30px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #444;
+            margin-bottom: 40px;
+        }
+        .playlist-card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .playlist-title {
+            margin-top: 0;
+            font-size: 1.8em;
+        }
+        .playlist-title a {
+            text-decoration: none;
+            color: #007bff;
+            transition: color 0.2s;
+        }
+        .playlist-title a:hover {
+            color: #0056b3;
+        }
+        .song-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        .song-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .song-item:last-child {
+            border-bottom: none;
+        }
+        .no-history {
+            text-align: center;
+            font-size: 1.2em;
+            color: #888;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 40px;
+            font-size: 1.1em;
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>최근 생성된 플레이리스트</h1>
+
+        {% if playlist_history %}
+            {% for playlist in playlist_history %}
+                <div class="playlist-card">
+                    <h2 class="playlist-title">
+                        <a href="{{ playlist.url }}" target="_blank" rel="noopener noreferrer">
+                            {{ playlist.title }}
+                        </a>
+                    </h2>
+                    <ul class="song-list">
+                        {% for title, artist, album, year in playlist.songs %}
+                            <li class="song-item">
+                                <strong>{{ title }}</strong> &mdash; {{ artist }} ({{ year }})
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="no-history">아직 생성된 플레이리스트 히스토리가 없습니다.</p>
+        {% endif %}
+
+        <a href="{% url 'recommendation:start' %}" class="back-link">시작 페이지로 돌아가기</a>
+    </div>
+</body>
+</html>

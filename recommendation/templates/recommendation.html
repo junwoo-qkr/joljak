@@ -2,182 +2,235 @@
 <html lang="ko">
 {% load static %}
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>VibeAI - 감정으로 찾기</title>
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>VibeAI - 감정으로 찾기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes buttonPulse {
+            0% { box-shadow: 0 0 0 0 rgba(147, 51, 234, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(147, 51, 234, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(147, 51, 234, 0); }
+        }
+        .initial-hidden { opacity: 0; }
+        .animate-slide-in-up { animation: slideInUp 0.6s ease-out forwards; }
+        .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+        .animate-button-pulse { animation: buttonPulse 2s infinite; }
+        
+        .step-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .step-btn.selected {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgba(147, 51, 234, 0.2);
+        }
+        .step-btn:not(.selected) {
+            background: rgba(255, 255, 255, 0.8);
+            color: #374151;
+            backdrop-filter: blur(10px);
+        }
+        .step-btn:not(.selected):hover {
+            background: rgba(255, 255, 255, 0.95);
+            color: #6366f1;
+            transform: translateY(-2px);
+        }
+        .step { display: none; }
+        .step.active { display: block; }
+    </style>
 </head>
-<body class="recommendation-page">
-  <header>
-    <div>
-      <a href="{% url 'recommendation:start' %}"><img src="{% static 'images/LOGO.svg' %}" alt="Icon" style="height:40px; vertical-align: middle;"></a>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 relative overflow-hidden">
+    <div id="page-loader" class="fixed inset-0 z-[9999] hidden grid place-items-center bg-white/60 backdrop-blur-sm">
+        <div class="flex flex-col items-center gap-4">
+        <div class="h-12 w-12 rounded-full border-4 border-purple-500 border-t-transparent animate-spin"></div>
+        <p class="text-gray-700 text-sm">추천을 준비하는 중...</p>
+        </div>
     </div>
-  </header>
-  <header style="border-bottom:none; padding-top:0;">
-    <div class="topnav">
-      <a href="#emotion">Find by Emotion</a>
-      <a href="#playlist">My Playlist</a>
-      <a href="#about">About VibeAI</a>
-      <a href="#contact">Contact / Feedback</a>
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-200/30 to-pink-200/30 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-blue-200/30 to-purple-200/30 rounded-full blur-3xl"></div>
     </div>
-  </header>
-  <div class="container">
-    <h1>지금 느끼는 감정이나 원하는 감정을 선택해 주세요</h1>
 
-    <form id="keyword-form" method="post" action="{% url 'recommendation:result' %}">
-      {% csrf_token %}
+    <header class="relative z-10 px-6 py-4">
+        <nav class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3 initial-hidden animate-slide-in-down">
+                <div class="relative">
+                    <a href="{% url 'recommendation:start' %}" class="w-10 h-10 bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 rounded-lg flex items-center justify-center shadow-lg hover-scale transition-all duration-300 cursor-pointer">
+                        <img src="{% static 'images/LOGO.png' %}" alt="VibeAI Heart Logo" class="w-7 h-7 text-white">
+                    </a>
+                </div>
+                <span class="text-2xl bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">VibeAI</span>
+            </div>
+            <div class="hidden md:flex items-center gap-1 bg-white/80 backdrop-blur-sm rounded-full px-2 py-2 shadow-lg border border-white/20 initial-hidden animate-slide-in-down delay-200">
+                <a href={% url 'recommendation:start' %} class="px-4 py-2 rounded-full text-sm text-gray-600 hover:text-purple-600">Find by Emotion</a>
+                <a href={% url 'recommendation:history' %} class="px-4 py-2 rounded-full text-sm text-gray-600 hover:text-purple-600">My Playlist</a>
+                <a href={% url 'recommendation:about' %} class="px-4 py-2 rounded-full text-sm text-gray-600 hover:text-purple-600">About VibeAI</a>
+                <a href="#contact" class="px-4 py-2 rounded-full text-sm text-gray-600 hover:text-purple-600">Contact / Feedback</a>
+            </div>
+        </nav>
+    </header>
 
-      <!-- 선택된 키워드가 시각적으로 쌓이는 영역 -->
-      <div class="selected-keywords">
-        <div class="group emotions-group"></div>
-        <div class="group years-group"></div>
-        <div class="group nation-group"></div>
-      </div>
+    <main class="relative z-10 flex-1 flex items-center justify-center px-6 py-8">
+        <div class="max-w-4xl w-full mx-auto text-center">
+            <form id="keyword-form" method="post" action="{% url 'recommendation:result' %}">
+                {% csrf_token %}
 
-      <!-- STEP 1: 감정 선택 -->
-      <div id="step-1" class="step active">
-        <div class="emotions">
-          <button type="button" class="btn" data-name="emotions" data-value="Delighted">Delighted</button>
-          <button type="button" class="btn" data-name="emotions" data-value="Depressed">Depressed</button>
-          <button type="button" class="btn" data-name="emotions" data-value="Happy">Happy</button>
-          <button type="button" class="btn" data-name="emotions" data-value="Tired">Tired</button>
-          <button type="button" class="btn" data-name="emotions" data-value="Anxious">Anxious</button>
-          <button type="button" class="btn" data-name="emotions" data-value="Calm">Calm</button>
-          <button type="button" class="btn" data-name="emotions" data-value="Angry">Angry</button>
-          <button type="button" class="btn" data-name="emotions" data-value="Satisfied">Satisfied</button>
+                <div class="min-h-[80px] mb-8 initial-hidden animate-fade-in">
+                    <h1 id="step-title" class="text-3xl md:text-4xl text-gray-800 leading-relaxed">지금 느끼는 감정이나 원하는 감정을 선택해 주세요</h1>
+                    <div class="selected-keywords mt-4 flex flex-wrap justify-center gap-2">
+                        <div class="group emotions-group flex flex-wrap gap-2"></div>
+                        <div class="group years-group flex flex-wrap gap-2"></div>
+                        <div class="group nation-group flex flex-wrap gap-2"></div>
+                        <div class="group genres-group flex flex-wrap gap-2"></div>
+                    </div>
+                </div>
+
+                <div class="initial-hidden animate-slide-in-up">
+                    <div id="step-1" class="step active">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <button type="button" class="step-btn px-6 py-3 rounded-full border border-gray-200 shadow-md" data-name="emotions" data-value="Delighted">Delighted</button>
+                            <button type="button" class="step-btn px-6 py-3 rounded-full border border-gray-200 shadow-md" data-name="emotions" data-value="Depressed">Depressed</button>
+                            <button type="button" class="step-btn px-6 py-3 rounded-full border border-gray-200 shadow-md" data-name="emotions" data-value="Happy">Happy</button>
+                            <button type="button" class="step-btn px-6 py-3 rounded-full border border-gray-200 shadow-md" data-name="emotions" data-value="Tired">Tired</button>
+                            <button type="button" class="step-btn px-6 py-3 rounded-full border border-gray-200 shadow-md" data-name="emotions" data-value="Anxious">Anxious</button>
+                            <button type="button" class="step-btn px-6 py-3 rounded-full border border-gray-200 shadow-md" data-name="emotions" data-value="Calm">Calm</button>
+                            <button type="button" class="step-btn px-6 py-3 rounded-full border border-gray-200 shadow-md" data-name="emotions" data-value="Angry">Angry</button>
+                            <button type="button" class="step-btn px-6 py-3 rounded-full border border-gray-200 shadow-md" data-name="emotions" data-value="Satisfied">Satisfied</button>
+                        </div>
+                    </div>
+                    <div id="step-2" class="step">
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            <button type="button" class="step-btn px-6 py-3 rounded-full border border-gray-200 shadow-md" data-name="years" data-value="2000년대">2000년대</button>
+                            <button type="button" class="step-btn px-6 py-3 rounded-full border border-gray-200 shadow-md" data-name="years" data-value="2010년대">2010년대</button>
+                            <button type="button" class="step-btn px-6 py-3 rounded-full border border-gray-200 shadow-md" data-name="years" data-value="2020년대">2020년대</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-16 flex justify-center gap-4 initial-hidden animate-slide-in-up">
+                    <button id="back-btn" type="button" class="bg-white/80 backdrop-blur-sm border border-white/20 text-gray-700 hover:text-purple-600 px-8 py-3 rounded-2xl shadow-lg transition-all duration-300 hidden">BACK</button>
+                    <button id="next-btn" type="button" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3 rounded-2xl shadow-lg transition-all duration-300 group animate-button-pulse">
+                        <span class="flex items-center gap-2">
+                            NEXT
+                            <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+                        </span>
+                    </button>
+                    <button id="finish-btn" type="submit" class="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white px-8 py-3 rounded-2xl shadow-lg transition-all duration-300 hidden">FINISH</button>
+                </div>
+            </form>
         </div>
-        <div class="nav-btns">
-          <span></span>
-          <button id="next-1" type="button" class="btn">NEXT</button>
-        </div>
-      </div>
+    </main>
 
-      <!-- STEP 2: 연도 선택 -->
-      <div id="step-2" class="step">
-        <div class="years">
-          <button type="button" class="btn" data-name="years" data-value="1990년대">1990년대</button>
-          <button type="button" class="btn" data-name="years" data-value="2000년대">2000년대</button>
-          <button type="button" class="btn" data-name="years" data-value="2010년대">2010년대</button>
-          <button type="button" class="btn" data-name="years" data-value="2020년대">2020년대</button>
-        </div>
-        <div class="nav-btns">
-          <button id="back-2" type="button" class="btn">BACK</button>
-          <button id="next-2" type="button" class="btn">NEXT</button>
-        </div>
-      </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        let currentStep = 1;
+        const totalSteps = 2;
+        const form = document.getElementById('keyword-form');
+        const title = document.getElementById('step-title');
+        const nextBtn = document.getElementById('next-btn');
+        const backBtn = document.getElementById('back-btn');
+        const finishBtn = document.getElementById('finish-btn');
+        const loader = document.getElementById('page-loader');
 
-      <!-- STEP 3: 국가 선택 -->
-      <div id="step-3" class="step">
-        <div class="nation">
-          <button type="button" class="btn" data-name="nation" data-value="서양">서양</button>
-          <button type="button" class="btn" data-name="nation" data-value="한국">한국</button>
-          <button type="button" class="btn" data-name="nation" data-value="일본">일본</button>
-        </div>
-        <div class="nav-btns">
-          <button id="back-3" type="button" class="btn">BACK</button>
-          <button id="finish" type="submit" class="btn">FINISH</button>
-        </div>
-      </div>
-    </form>
-  </div>
+        const stepTitles = [
+        "지금 느끼는 감정이나 원하는 감정을 선택해 주세요",
+        "언제 발표된 음악을 원하시나요?"
+        ];
 
-  <script>
-    // 현재 화면에 보일 step만 visible 처리
-    function showStep(n) {
-      document.querySelectorAll('.step').forEach(sec => {
-        sec.classList.toggle('active', sec.id === 'step-' + n);
-      });
-    }
+        const groups = {
+        emotions: document.querySelector('.emotions-group'),
+        years: document.querySelector('.years-group')
+        };
 
-    // STEP 간 이동 버튼 핸들러
-    document.getElementById('next-1').onclick = () => {
-      // STEP 1에서 감정 키워드가 선택되었는지 검사
-      const selectedEmotions = document.querySelectorAll('input[name="emotions"]');
-      if (selectedEmotions.length === 0) {
-        alert('감정을 하나 이상 선택해주세요.');
-        return;
-      }
-      showStep(2);
-    };
+        function showStep(stepNumber) {
+        document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
+        const activeStep = document.getElementById(`step-${stepNumber}`);
+        if (activeStep) activeStep.classList.add('active');
 
-    document.getElementById('back-2').onclick = () => showStep(1);
+        title.textContent = stepTitles[stepNumber - 1];
+        backBtn.classList.toggle('hidden', stepNumber === 1);
+        nextBtn.classList.toggle('hidden', stepNumber === totalSteps);
+        finishBtn.classList.toggle('hidden', stepNumber !== totalSteps);
+        }
 
-    document.getElementById('next-2').onclick = () => {
-      // STEP 2에서 연도 키워드가 선택되었는지 검사
-      const selectedYears = document.querySelectorAll('input[name="years"]');
-      if (selectedYears.length === 0) {
-        alert('연도를 하나 이상 선택해주세요.');
-        return;
-      }
-      showStep(3);
-    };
+        function validateStep(stepNumber) {
+        const stepName = Object.keys(groups)[stepNumber - 1];
+        const selected = form.querySelectorAll(`input[name="${stepName}"]`);
+        if (selected.length === 0) {
+            alert(stepTitles[stepNumber - 1].replace(/주세요$/, " 선택해주세요."));
+            return false;
+        }
+        return true;
+        }
 
-    document.getElementById('back-3').onclick = () => showStep(2);
+        nextBtn.addEventListener('click', () => {
+        if (validateStep(currentStep)) {
+            currentStep++;
+            showStep(currentStep);
+        }
+        });
 
-    // FINISH (submit) 시점에 서버로 전송하기 전 검사
-    document.getElementById('keyword-form').addEventListener('submit', function(e) {
-      const selectedNation = document.querySelectorAll('input[name="nation"]');
-      if (selectedNation.length === 0) {
-        e.preventDefault();  // 폼 제출 중단
-        alert('국가를 하나 이상 선택해주세요.');
-      }
-      // else: 정상적으로 submit → select_keywords 뷰로 전송
-    });
+        backBtn.addEventListener('click', () => {
+        currentStep--;
+        showStep(currentStep);
+        });
 
-    // 각 그룹별 토글 로직: 화면에 칩 생성/삭제 + form 내부 hidden input 생성/삭제
-    const groups = {
-      emotions: {
-        container: document.querySelector('.emotions'),
-        chips: document.querySelector('.emotions-group')
-      },
-      years: {
-        container: document.querySelector('.years'),
-        chips: document.querySelector('.years-group')
-      },
-      nation: {
-        container: document.querySelector('.nation'),
-        chips: document.querySelector('.nation-group')
-      }
-    };
+        // ✅ 제출 시 로딩 인디케이터 표시 (유효성 통과한 경우에만)
+        form.addEventListener('submit', (e) => {
+        if (!validateStep(currentStep)) {
+            e.preventDefault();
+            return;
+        }
+        // 인디케이터 표시 & 버튼 비활성화
+        if (loader) loader.classList.remove('hidden');
+        [finishBtn, nextBtn, backBtn].forEach(b => { if (b) b.disabled = true; });
 
-    Object.keys(groups).forEach(groupName => {
-      const { container, chips } = groups[groupName];
+        });
 
-      container.querySelectorAll('button').forEach(btn => {
+        document.querySelectorAll('.step-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-          const kw = btn.dataset.value;
-          const existChip = Array.from(chips.children).find(c => c.textContent === kw);
+            const name = btn.dataset.name;
+            const value = btn.dataset.value;
+            const chipsContainer = groups[name];
 
-          if (existChip) {
-            // 이미 선택된 경우: 칩 제거 + form 내부 hidden input 제거
-            chips.removeChild(existChip);
+            const existingInput = form.querySelector(`input[name="${name}"][value="${value}"]`);
+
+            if (existingInput) {
+            existingInput.remove();
             btn.classList.remove('selected');
+            const chipToRemove = chipsContainer.querySelector(`[data-value="${value}"]`);
+            if (chipToRemove) chipToRemove.remove();
+            } else {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = name;
+            input.value = value;
+            form.appendChild(input);
 
-            const inputToRemove = document.querySelector(
-              `input[type="checkbox"][name="${groupName}"][value="${kw}"]`
-            );
-            if (inputToRemove) {
-              inputToRemove.parentNode.removeChild(inputToRemove);
-            }
-          } else {
-            // 새로 선택된 경우: 칩 추가 + hidden input 생성
-            const chip = document.createElement('div');
-            chip.className = 'chip';
-            chip.textContent = kw;
-            chips.appendChild(chip);
             btn.classList.add('selected');
 
-            const input = document.createElement('input');
-            input.type = 'checkbox';
-            input.checked = true;
-            input.name = groupName;   // ex: "emotions", "years", "nation"
-            input.value = kw;
-            input.style.display = 'none';
-            document.getElementById('keyword-form').appendChild(input);
-          }
+            const chip = document.createElement('div');
+            chip.className = 'chip bg-purple-100 text-purple-800 text-sm font-medium px-3 py-1 rounded-full';
+            chip.textContent = value;
+            chip.dataset.value = value;
+            chipsContainer.appendChild(chip);
+            }
         });
-      });
+        });
+
+        window.addEventListener('load', () => {
+        document.querySelectorAll('.initial-hidden').forEach(el => el.classList.remove('initial-hidden'));
+        });
     });
-  </script>
+    </script>
 </body>
 </html>

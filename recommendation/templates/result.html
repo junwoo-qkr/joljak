@@ -4,66 +4,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VibeAI - 추천 결과</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <title>VibeAI - 음악 추천 결과</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .initial-hidden { opacity: 0; }
+        .animate-fade-in-scale { animation: fadeInScale 0.6s ease-out forwards; }
+        .animate-slide-in-up { animation: slideInUp 0.6s ease-out forwards; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-500 { animation-delay: 0.5s; }
+        .delay-700 { animation-delay: 0.7s; }
+        
+        .table-row {
+            transition: all 0.2s ease;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .table-row:hover {
+            background: linear-gradient(90deg, rgba(147, 51, 234, 0.05), rgba(168, 85, 247, 0.05));
+            transform: translateX(4px);
+        }
+        .table-row:last-child {
+            border-bottom: none;
+        }
+    </style>
 </head>
-<body class="result-page">
-    <header>
-        <div>
-            <a href="{% url 'recommendation:start' %}"><img src="{% static 'images/LOGO.svg' %}" alt="Icon" style="height:40px; vertical-align: middle;"></a>
-        </div>
-    </header>
-    <header style="border-bottom:none; padding-top:0;">
-        <div class="topnav">
-            <a href="#emotion">Find by Emotion</a>
-            <a href="#playlist">My Playlist</a>
-            <a href="#about">About VibeAI</a>
-            <a href="#contact">Contact / Feedback</a>
-        </div>
-    </header>
-    <div class="container">
-        <h1>추천 결과</h1>
-        <div class="selected-keywords">
-            {% for kw in e %}
-                <div class="chip">{{ kw }}</div>
-            {% endfor %}
-            {# 연도 리스트 y #}
-            {% for kw in y %}
-                <div class="chip">{{ kw }}</div>
-            {% endfor %}
-            {# 국가 리스트 n #}
-            {% for kw in n %}
-                <div class="chip">{{ kw }}</div>
-            {% endfor %}
-        </div>
-        <div class="results">
-            <table>
-                <thead>
-                    <tr><th>Title</th><th>artist</th><th>album</th><th>발매 일자</th></tr>
-                </thead>
-                <tbody>
-                    {% for song in songs %}
-                        <tr>
-                            <td>{{ song.0 }}</td>
-                            <td>{{ song.1 }}</td>
-                            <td>{{ song.2 }}</td>
-                            <td>{{ song.3 }}</td>
-                        </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="4">조건에 맞는 곡이 없습니다.</td>
-                    </tr>
-                    {% endfor %}
-            </table>
-        </div>
-        <div class="back-btn-container">
-            {% if link %}
-                <button class="btn" onclick="location.href='{{ link }}'">노래 들으러 가기</button>
-            {% else %}
-                <button class="btn" onclick="location.href='https://www.youtube.com'">노래 들으러 가기</button>
-            {% endif %}
-            <button class="btn" onclick="location.href='{% url 'recommendation:start' %}'">처음 화면으로</button>
-        </div>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 relative">
+    <div class="absolute inset-0 overflow-hidden -z-10">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-200/30 to-pink-200/30 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-blue-200/30 to-purple-200/30 rounded-full blur-3xl"></div>
     </div>
+
+    <header class="relative z-10 px-6 py-4">
+        <nav class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3 initial-hidden animate-slide-in-down">
+                <div class="relative">
+                    <a href="{% url 'recommendation:start' %}" class="w-10 h-10 bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 rounded-lg flex items-center justify-center shadow-lg hover-scale transition-all duration-300 cursor-pointer">
+                        <img src="{% static 'images/LOGO.png' %}" alt="VibeAI Heart Logo" class="w-7 h-7 text-white">
+                    </a>
+                </div>
+                <span class="text-2xl bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">VibeAI</span>
+            </div>
+        </nav>
+    </header>
+
+    <main class="relative z-10 px-6 py-8">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-8 initial-hidden animate-fade-in-scale">
+                <h1 class="text-3xl md:text-4xl font-medium text-gray-800">AI 음악 추천 결과</h1>
+                <p class="text-gray-600 mt-2">선택하신 키워드에 맞는 음악 목록입니다.</p>
+                <div class="selected-keywords mt-4 flex flex-wrap justify-center gap-2">
+                    {% for kw in e %}<div class="chip bg-purple-100 text-purple-800 text-sm font-medium px-3 py-1 rounded-full">{{ kw }}</div>{% endfor %}
+                    {% for kw in y %}<div class="chip bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">{{ kw }}</div>{% endfor %}
+                    {% for kw in n %}<div class="chip bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full">{{ kw }}</div>{% endfor %}
+                    {% for kw in g %}<div class="chip bg-yellow-100 text-yellow-800 text-sm font-medium px-3 py-1 rounded-full">{{ kw }}</div>{% endfor %}
+                </div>
+            </div>
+
+            <div class="mb-8 initial-hidden animate-fade-in-scale delay-300">
+                <div class="overflow-x-auto">
+                    <div class="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg overflow-hidden">
+                        <table class="w-full min-w-[600px]">
+                            <thead>
+                                <tr class="bg-gradient-to-r from-purple-50 to-pink-50">
+                                    <th class="text-left py-4 px-6 text-gray-700 font-medium">Title</th>
+                                    <th class="text-left py-4 px-6 text-gray-700 font-medium">Artist</th>
+                                    <th class="text-left py-4 px-6 text-gray-700 font-medium">Album</th>
+                                    <th class="text-left py-4 px-6 text-gray-700 font-medium">발매 일자</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for song in songs %}
+                                <tr class="table-row">
+                                    <td class="py-4 px-6 text-gray-800 font-medium">{{ song.0 }}</td>
+                                    <td class="py-4 px-6 text-gray-600">{{ song.1 }}</td>
+                                    <td class="py-4 px-6 text-gray-600">{{ song.2 }}</td>
+                                    <td class="py-4 px-6 text-gray-600">{{ song.3 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr class="table-row">
+                                    <td colspan="4" class="py-8 px-6 text-center text-gray-500">조건에 맞는 곡이 없습니다.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center initial-hidden animate-slide-in-up delay-500">
+                 {% if link %}
+                    <button onclick="location.href='{{ link }}'" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 rounded-2xl shadow-lg transition-all duration-300 group flex items-center justify-center gap-2">
+                        노래 들으러 가기
+                        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    </button>
+                {% else %}
+                    <button onclick="location.href='https://www.youtube.com'" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 rounded-2xl shadow-lg transition-all duration-300 group flex items-center justify-center gap-2">
+                         노래 들으러 가기
+                        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    </button>
+                {% endif %}
+                <button onclick="location.href='{% url 'recommendation:start' %}'" class="bg-white/80 backdrop-blur-sm border border-white/20 text-gray-700 hover:text-purple-600 px-8 py-4 rounded-2xl shadow-lg transition-all duration-300 group flex items-center justify-center gap-2">
+                    처음 화면으로
+                    <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                </button>
+            </div>
+             <div class="mt-8 pb-8 text-center initial-hidden animate-fade-in-scale delay-700">
+                <p class="text-gray-600">
+                    총 <span class="text-purple-600 font-medium">{{ songs|length }}</span>곡이 추천되었습니다 🎵
+                </p>
+            </div>
+        </div>
+    </main>
+    <script>
+        window.addEventListener('load', () => {
+            document.querySelectorAll('.initial-hidden').forEach(el => el.classList.remove('initial-hidden'));
+        });
+    </script>
 </body>
 </html>

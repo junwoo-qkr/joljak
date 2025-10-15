@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About VibeAI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root { --radius: 0.625rem; }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+        .animate-slide-in-up { animation: slideInUp 0.8s ease-out forwards; }
+        .animate-slide-in-down { animation: slideInDown 0.6s ease-out forwards; }
+        .animate-scale-in { animation: scaleIn 0.8s ease-out forwards; }
+        .initial-hidden { opacity: 0; }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 overflow-auto relative">
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-200/30 to-pink-200/30 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-blue-200/30 to-purple-200/30 rounded-full blur-3xl"></div>
+    </div>
+
+    <header class="relative z-10 px-6 py-4">
+        <nav class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3 initial-hidden animate-slide-in-down">
+                <a href="{% url 'recommendation:start' %}" class="w-10 h-10 bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 rounded-lg flex items-center justify-center shadow-lg hover:scale-110 transition-all duration-300">
+                    <img src="{% static 'images/LOGO.png' %}" alt="VibeAI Heart Logo" class="w-7 h-7 text-white">
+                </a>
+                <span class="text-2xl bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent font-semibold">VibeAI</span>
+            </div>
+            <div class="hidden md:flex items-center gap-1 bg-white/80 backdrop-blur-sm rounded-full px-2 py-2 shadow-lg border border-white/20 initial-hidden animate-slide-in-down delay-200">
+                <a href={% url 'recommendation:start' %} class="px-4 py-2 rounded-full text-sm text-gray-600 hover:text-purple-600">Find by Emotion</a>
+                <a href="#playlist" class="px-4 py-2 rounded-full text-sm text-gray-600 hover:text-purple-600">My Playlist</a>
+                <a href={% url 'recommendation:about' %} class="px-4 py-2 rounded-full text-sm text-gray-600 hover:text-purple-600">About VibeAI</a>
+                <a href="#contact" class="px-4 py-2 rounded-full text-sm text-gray-600 hover:text-purple-600">Contact / Feedback</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="relative z-10 px-6 py-12 max-w-5xl mx-auto">
+        <div class="text-center mb-12 initial-hidden animate-slide-in-up">
+            <h1 class="text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-red-500 bg-clip-text text-transparent mb-4">About VibeAI</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                감정 기반 음악 추천 AI 서비스, <strong>VibeAI</strong>의 개념과 기술적 배경을 소개합니다.
+            </p>
+        </div>
+
+        <section class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/30 p-8 leading-relaxed initial-hidden animate-slide-in-up delay-200">
+            <h2 class="text-2xl font-semibold text-purple-700 mb-4">🎧 프로젝트 개요</h2>
+            <p>VibeAI는 Arousal–Valence 모델에 기반해 음악을 추천하는 웹 서비스입니다. 
+            감정 키워드를 선택하면 음악의 오디오 특징을 분석해 감정 공간 상의 위치를 계산하고, 
+            이에 가장 근접한 곡들을 추천합니다.</p>
+        </section>
+
+        <section class="mt-10 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/30 p-8 initial-hidden animate-slide-in-up delay-350">
+            <h2 class="text-2xl font-semibold text-purple-700 mb-4">🎵 어떻게 작동하나요?</h2>
+            <p class="text-gray-700 leading-relaxed">
+                VibeAI는 단순히 장르나 가수 이름으로 음악을 추천하지 않습니다. 
+                대신 각 노래의 오디오를 직접 분석해 그 노래가 주는 감정적인 분위기를 수치로 표현합니다.
+            </p>
+            <ul class="list-disc pl-6 mt-3 space-y-2 text-gray-700">
+                <li>현재까지 약 <b>2300 곡의 음악</b>을 분석하여 데이터베이스에 저장했습니다.</li>
+                <li>각 노래는 ‘감정의 긍정적인 정도(Arousal)’와 ‘감정의 세기(Valence)’라는 두 가지 축으로 표현됩니다.</li>
+                <li>사용자가 감정 키워드를 선택하면, VibeAI가 이 감정에 가장 가까운 곡들을 찾아 추천합니다.</li>
+            </ul>
+            <p class="mt-4 text-gray-700 leading-relaxed">
+                vibeAI는 단순한 추천을 넘어, 계산된 감정 정보를 이용해 ‘지금의 기분에 맞는 음악’을 찾는 데 도움을 주는 <b>감정 맞춤형 음악 큐레이터</b>입니다.
+            </p>
+        </section>
+
+        <section class="mt-10 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/30 p-8 initial-hidden animate-slide-in-up delay-300">
+            <h2 class="text-2xl font-semibold text-purple-700 mb-4">⚙️ 기술 구성</h2>
+            <ul class="list-disc pl-6 space-y-2 text-gray-700">
+                <li><b>Frontend:</b> Django Template + Tailwind CSS</li>
+                <li><b>Backend:</b> Django + MySQL (음악 메타데이터 및 감정 예측값 저장)</li>
+                <li><b>Audio Processing:</b> Essentia, Pydub 기반 오디오 분석</li>
+                <li><b>Feature Extraction:</b> MFCC, GFCC, BarkBands, HPCP, RMS 등</li>
+                <li><b>Machine Learning:</b> CatBoost로 Arousal/Valence 예측</li>
+                <li><b>Integration:</b> YouTube API를 이용한 메타데이터 및 링크 연동</li>
+            </ul>
+        </section>
+
+        <section class="mt-10 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/30 p-8 initial-hidden animate-slide-in-up delay-400">
+            <h2 class="text-2xl font-semibold text-purple-700 mb-4">💡 주요 기능</h2>
+            <ul class="list-disc pl-6 space-y-2 text-gray-700">
+                <li>감정 키워드 선택 → AV좌표 변환 → 유사 감정 곡 추천</li>
+                <li>곡명, 아티스트, 앨범, 발매연도 등 음악의 정보 제공</li>
+                <li>맞춤형 플레이리스트 생성 기능</li>
+            </ul>
+        </section>
+
+        <section class="mt-10 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/30 p-8 initial-hidden animate-slide-in-up delay-500">
+            <h2 class="text-2xl font-semibold text-purple-700 mb-4">📈 연구 및 발전 방향</h2>
+            <p>VibeAI는 Jacek Grekow의 Audio features dedicated to the detection of arousal and valence in music recordings (2017)를 기반으로 오디오 특징과 감정 인식을 결합했습니다.
+            현재는 감정-음악 매핑 고도화, 데이터셋 확장 등 다양한 연구를 진행 중입니다.</p>
+        </section>
+
+        <div class="mt-12 text-center initial-hidden animate-slide-in-up delay-600">
+            <button onclick="location.href='{% url 'recommendation:start' %}'"
+                class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+                홈으로 돌아가기
+            </button>
+        </div>
+    </main>
+
+    <script>
+        window.addEventListener('load',()=>{document.querySelectorAll('.initial-hidden').forEach(el=>el.classList.remove('initial-hidden'));});
+    </script>
+</body>
+</html>
