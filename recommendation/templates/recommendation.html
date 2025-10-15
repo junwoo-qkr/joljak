@@ -184,13 +184,11 @@
         showStep(currentStep);
         });
 
-        // ✅ 제출 시 로딩 인디케이터 표시 (유효성 통과한 경우에만)
         form.addEventListener('submit', (e) => {
         if (!validateStep(currentStep)) {
             e.preventDefault();
             return;
         }
-        // 인디케이터 표시 & 버튼 비활성화
         if (loader) loader.classList.remove('hidden');
         [finishBtn, nextBtn, backBtn].forEach(b => { if (b) b.disabled = true; });
 

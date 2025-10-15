@@ -2,7 +2,6 @@ from django.contrib import admin
 from django.db import models
 from .models import music_list
 
-# Register your models here.
 @admin.register(music_list)
 class MusicListAdmin(admin.ModelAdmin):
     list_display = [field.name for field in music_list._meta.fields]
