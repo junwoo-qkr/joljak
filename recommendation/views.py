@@ -6,11 +6,12 @@ from google.auth.exceptions import RefreshError
 from django.core.cache import cache
 
 def youtube_authorize(request):
-    flow = Flow.from_client_secrets_file(
-        settings.YOUTUBE_CLIENT_SECRETS_FILE,
-        scopes=settings.YOUTUBE_SCOPES,
-        redirect_uri=settings.YOUTUBE_OAUTH2_CALLBACK
+    flow = Flow.from_client_config(
+        settings.GOOGLE_WEB_CONFIG,
+        scopes=settings.YOUTUBE_SCOPES
     )
+    flow.redirect_uri = settings.YOUTUBE_OAUTH2_CALLBACK
+
     auth_url, state = flow.authorization_url(
         access_type='offline',
         include_granted_scopes='true',
@@ -22,12 +23,13 @@ def youtube_authorize(request):
 
 def youtube_oauth2callback(request):
     state = request.session.pop('oauth_state', None)
-    flow = Flow.from_client_secrets_file(
-        settings.YOUTUBE_CLIENT_SECRETS_FILE,
+    flow = Flow.from_client_config(
+        settings.GOOGLE_WEB_CONFIG,
         scopes=settings.YOUTUBE_SCOPES,
-        redirect_uri=settings.YOUTUBE_OAUTH2_CALLBACK,
         state=state
     )
+    flow.redirect_uri = settings.YOUTUBE_OAUTH2_CALLBACK
+
     flow.fetch_token(code=request.GET.get('code'))
     creds = flow.credentials
 
@@ -47,8 +49,9 @@ def start(request):
 
 
 def playlist_history(request):
-    history = cache.get('playlist-history-cache', []).reverse()
-    return render(request, 'history.html', {'playlist': history})
+    history = cache.get('playlist-history-cache', [])
+    history = list(reversed(history))
+    return render(request, 'history.html', {'playlist_history': history})
 
 
 def select_keywords(request):

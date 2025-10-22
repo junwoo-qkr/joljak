@@ -34,6 +34,7 @@
             border-bottom: none;
         }
     </style>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 relative">
     <div class="absolute inset-0 overflow-hidden -z-10">
@@ -50,6 +51,12 @@
                     </a>
                 </div>
                 <span class="text-2xl bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">VibeAI</span>
+            </div>
+            <div class="hidden md:flex items-center gap-1 bg-white/80 backdrop-blur-sm rounded-full px-2 py-2 shadow-lg border border-white/20 initial-hidden animate-slide-in-down delay-200">
+                <a href={% url 'recommendation:start' %} class="px-4 py-2 rounded-full text-sm text-gray-600 hover:text-purple-600">Find by Emotion</a>
+                <a href={% url 'recommendation:history' %} class="px-4 py-2 rounded-full text-sm text-gray-600 hover:text-purple-600">My Playlist</a>
+                <a href={% url 'recommendation:about' %} class="px-4 py-2 rounded-full text-sm text-gray-600 hover:text-purple-600">About VibeAI</a>
+                <a href="#contact" class="px-4 py-2 rounded-full text-sm text-gray-600 hover:text-purple-600">Contact / Feedback</a>
             </div>
         </nav>
     </header>
@@ -104,16 +111,27 @@
                         노래 들으러 가기
                         <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                     </button>
-                {% else %}
-                    <button onclick="location.href='https://www.youtube.com'" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 rounded-2xl shadow-lg transition-all duration-300 group flex items-center justify-center gap-2">
-                         노래 들으러 가기
-                        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    <button id="shareBtn" data-url="{{ link|default:'' }}"
+                            class="bg-white/80 backdrop-blur-sm border border-white/20 text-gray-700 hover:text-purple-600 px-8 py-4 rounded-2xl shadow-lg transition-all duration-300 group flex items-center justify-center gap-2">
+                    공유하기
+                    <span class="material-icons text-[20px] leading-none group-hover:scale-110 transition-transform">share</span>
                     </button>
                 {% endif %}
                 <button onclick="location.href='{% url 'recommendation:start' %}'" class="bg-white/80 backdrop-blur-sm border border-white/20 text-gray-700 hover:text-purple-600 px-8 py-4 rounded-2xl shadow-lg transition-all duration-300 group flex items-center justify-center gap-2">
                     처음 화면으로
                     <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
                 </button>
+            </div>
+            <div id="qrModal" class="fixed inset-0 hidden items-center justify-center bg-black/40 p-6 z-50">
+                <div class="bg-white/90 backdrop-blur-md rounded-2xl shadow-xl p-6 w-full max-w-sm relative animate-fade-in-scale">
+                    <button id="qrClose" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600" aria-label="닫기">
+                    ✕
+                    </button>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2 text-center">QR 코드로 공유</h3>
+                    <p id="qrUrl" class="text-xs text-gray-500 mb-4 break-all text-center"></p>
+                    <div id="qrContainer" class="flex items-center justify-center"></div>
+                    <div class="text-xs text-gray-500 mt-4 text-center">휴대폰 카메라로 스캔하세요</div>
+                </div>
             </div>
              <div class="mt-8 pb-8 text-center initial-hidden animate-fade-in-scale delay-700">
                 <p class="text-gray-600">
@@ -126,6 +144,52 @@
         window.addEventListener('load', () => {
             document.querySelectorAll('.initial-hidden').forEach(el => el.classList.remove('initial-hidden'));
         });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+    <script>
+    window.addEventListener('load', () => {
+        // 기존 페이드인 처리 유지
+        document.querySelectorAll('.initial-hidden').forEach(el => el.classList.remove('initial-hidden'));
+    });
+
+    (function () {
+        const btn = document.getElementById('shareBtn');
+        if (!btn) return;
+
+        const modal = document.getElementById('qrModal');
+        const closeBtn = document.getElementById('qrClose');
+        const container = document.getElementById('qrContainer');
+        const urlText = document.getElementById('qrUrl');
+
+        function openModal() {
+        const url = btn.dataset.url || window.location.href; // {{ link }} 없으면 현재 페이지 주소
+        container.innerHTML = '';                            // 기존 QR 제거 후 재생성
+        try {
+            new QRCode(container, {
+            text: url,
+            width: 240,
+            height: 240,
+            correctLevel: QRCode.CorrectLevel.M
+            });
+        } catch (e) {
+            alert('QR 코드를 생성하는 중 오류가 발생했습니다.');
+            return;
+        }
+        urlText.textContent = url;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        }
+
+        function closeModal() {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        }
+
+        btn.addEventListener('click', openModal);
+        closeBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+    })();
     </script>
 </body>
 </html>

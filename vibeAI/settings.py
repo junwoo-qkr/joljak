@@ -22,7 +22,7 @@ GOOGLE_WEB_CONFIG = {
     }
 }
 
-DEBUG = True if env('DEBUG') == 'True' else False
+DEBUG = True if env('DEBUG') == True else False
 
 YOUTUBE_SCOPES = ['https://www.googleapis.com/auth/youtube']
 
@@ -112,7 +112,7 @@ STATIC_ROOT = BASE_DIR / 'assets'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CAHCHES = {
+CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         'LOCATION': 'playlist-history-cache',

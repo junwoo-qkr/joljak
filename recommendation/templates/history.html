@@ -1,98 +1,179 @@
 <!DOCTYPE html>
 <html lang="ko">
+{% load static %}
 <head>
     <meta charset="UTF-8">
-    <title>플레이리스트 히스토리</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeAI - 플레이리스트 히스토리</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            margin: 0;
-            padding: 30px;
-            background-color: #f4f4f9;
-            color: #333;
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
         }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        h1 {
-            text-align: center;
-            color: #444;
-            margin-bottom: 40px;
-        }
-        .playlist-card {
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .playlist-title {
-            margin-top: 0;
-            font-size: 1.8em;
-        }
-        .playlist-title a {
-            text-decoration: none;
-            color: #007bff;
-            transition: color 0.2s;
-        }
-        .playlist-title a:hover {
-            color: #0056b3;
-        }
-        .song-list {
-            list-style: none;
-            padding-left: 0;
-        }
-        .song-item {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-        }
-        .song-item:last-child {
-            border-bottom: none;
-        }
-        .no-history {
-            text-align: center;
-            font-size: 1.2em;
-            color: #888;
-        }
-        .back-link {
-            display: block;
-            text-align: center;
-            margin-top: 40px;
-            font-size: 1.1em;
-            color: #007bff;
-            text-decoration: none;
-        }
+        .initial-hidden { opacity: 0; }
+        .animate-fade-in-scale { animation: fadeInScale 0.5s ease-out forwards; }
+        .animate-slide-in-up { animation: slideInUp 0.5s ease-out forwards; }
     </style>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
-<body>
-
-    <div class="container">
-        <h1>최근 생성된 플레이리스트</h1>
-
-        {% if playlist_history %}
-            {% for playlist in playlist_history %}
-                <div class="playlist-card">
-                    <h2 class="playlist-title">
-                        <a href="{{ playlist.url }}" target="_blank" rel="noopener noreferrer">
-                            {{ playlist.title }}
-                        </a>
-                    </h2>
-                    <ul class="song-list">
-                        {% for title, artist, album, year in playlist.songs %}
-                            <li class="song-item">
-                                <strong>{{ title }}</strong> &mdash; {{ artist }} ({{ year }})
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p class="no-history">아직 생성된 플레이리스트 히스토리가 없습니다.</p>
-        {% endif %}
-
-        <a href="{% url 'recommendation:start' %}" class="back-link">시작 페이지로 돌아가기</a>
+<body class="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 relative">
+    <!-- 부드러운 그라디언트 장식 (result.html 스타일) -->
+    <div class="absolute inset-0 overflow-hidden -z-10">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-200/30 to-pink-200/30 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-blue-200/30 to-purple-200/30 rounded-full blur-3xl"></div>
     </div>
+
+    <!-- 헤더 -->
+    <header class="relative z-10 px-6 py-4">
+        <nav class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3 initial-hidden animate-slide-in-up">
+                <a href="{% url 'recommendation:start' %}" class="w-10 h-10 bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 rounded-lg flex items-center justify-center shadow-lg transition-all duration-300 cursor-pointer">
+                    <img src="{% static 'images/LOGO.png' %}" alt="VibeAI Heart Logo" class="w-7 h-7 text-white">
+                </a>
+                <span class="text-2xl bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">VibeAI</span>
+            </div>
+            <div class="hidden md:flex items-center gap-1 bg-white/80 backdrop-blur-sm rounded-full px-2 py-2 shadow-lg border border-white/20 initial-hidden animate-slide-in-down delay-200">
+                <a href={% url 'recommendation:start' %} class="px-4 py-2 rounded-full text-sm text-gray-600 hover:text-purple-600">Find by Emotion</a>
+                <a href={% url 'recommendation:history' %} class="px-4 py-2 rounded-full text-sm text-gray-600 hover:text-purple-600">My Playlist</a>
+                <a href={% url 'recommendation:about' %} class="px-4 py-2 rounded-full text-sm text-gray-600 hover:text-purple-600">About VibeAI</a>
+                <a href="#contact" class="px-4 py-2 rounded-full text-sm text-gray-600 hover:text-purple-600">Contact / Feedback</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="relative z-10 px-6 py-8">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-8 initial-hidden animate-fade-in-scale">
+                <h1 class="text-3xl md:text-4xl font-medium text-gray-800">최근 생성된 플레이리스트</h1>
+                <p class="text-gray-600 mt-2">과거에 만든 플레이리스트와 수록곡을 한눈에 확인하세요.</p>
+            </div>
+
+            {% if playlist_history %}
+                <div class="space-y-6">
+                    {% for playlist in playlist_history %}
+                    <section class="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-white/20 p-5 initial-hidden animate-fade-in-scale">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                            <h2 class="text-xl md:text-2xl font-semibold text-gray-800">
+                                <a href="{{ playlist.url }}" target="_blank" rel="noopener noreferrer" class="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-90">
+                                    {{ playlist.title }}
+                                </a>
+                            </h2>
+                            <!-- 각 플레이리스트 별 액션 버튼 묶음 -->
+                            <div class="flex flex-wrap gap-3">
+                                <!-- 노래 들으러 가기 (result.html 버튼 스타일) -->
+                                <button onclick="location.href='{{ playlist.url }}'"
+                                    class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-5 py-3 rounded-2xl shadow-lg transition-all duration-300 group flex items-center justify-center gap-2">
+                                    노래 들으러 가기
+                                    <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </button>
+
+                                <!-- 공유하기 (Material Icons - 안드로이드 스타일) -->
+                                <button
+                                    class="share-btn bg-white/80 backdrop-blur-sm border border-white/20 text-gray-700 hover:text-purple-600 px-5 py-3 rounded-2xl shadow-lg transition-all duration-300 group flex items-center justify-center gap-2"
+                                    data-url="{{ playlist.url }}">
+                                    공유하기
+                                    <span class="material-icons text-[20px] leading-none group-hover:scale-110 transition-transform">share</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 곡 리스트 -->
+                        <div class="mt-4 overflow-x-auto">
+                            <table class="w-full min-w-[480px]">
+                                <thead>
+                                    <tr class="text-left text-gray-700 bg-gradient-to-r from-purple-50 to-pink-50">
+                                        <th class="py-3 px-4 font-medium">Title</th>
+                                        <th class="py-3 px-4 font-medium">Artist</th>
+                                        <th class="py-3 px-4 font-medium">Album</th>
+                                        <th class="py-3 px-4 font-medium">발매 연도</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for title, artist, album, year in playlist.songs %}
+                                    <tr class="border-b last:border-0 hover:bg-purple-50/40 transition-colors">
+                                        <td class="py-3 px-4 text-gray-800 font-medium">{{ title }}</td>
+                                        <td class="py-3 px-4 text-gray-600">{{ artist }}</td>
+                                        <td class="py-3 px-4 text-gray-600">{{ album }}</td>
+                                        <td class="py-3 px-4 text-gray-600">{{ year }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-white/20 p-8 text-center text-gray-500 initial-hidden animate-fade-in-scale">
+                    아직 생성된 플레이리스트 히스토리가 없습니다.
+                </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <!-- QR 공유 모달 (result.html 패턴 재사용) -->
+    <div id="qrModal" class="fixed inset-0 hidden items-center justify-center bg-black/40 p-6 z-50">
+        <div class="bg-white/90 backdrop-blur-md rounded-2xl shadow-xl p-6 w-full max-w-sm relative animate-fade-in-scale">
+            <button id="qrClose" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600" aria-label="닫기">✕</button>
+            <h3 class="text-lg font-semibold text-gray-800 mb-2 text-center">QR 코드로 공유</h3>
+            <p id="qrUrl" class="text-xs text-gray-500 mb-4 break-all text-center"></p>
+            <div id="qrContainer" class="flex items-center justify-center"></div>
+            <div class="text-xs text-gray-500 mt-4 text-center">휴대폰 카메라로 스캔하세요</div>
+        </div>
+    </div>
+
+    <script>
+        // 등장 애니메이션 트리거
+        window.addEventListener('load', () => {
+            document.querySelectorAll('.initial-hidden').forEach(el => el.classList.remove('initial-hidden'));
+        });
+    </script>
+    <!-- qrcodejs 로딩 (result.html과 동일) -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script>
+        // 여러 개의 공유 버튼을 모두 지원하도록 이벤트 위임/반복 바인딩
+        (function () {
+            const modal = document.getElementById('qrModal');
+            const closeBtn = document.getElementById('qrClose');
+            const container = document.getElementById('qrContainer');
+            const urlText = document.getElementById('qrUrl');
+
+            function openModal(url) {
+                container.innerHTML = '';
+                try {
+                    new QRCode(container, {
+                        text: url,
+                        width: 240,
+                        height: 240,
+                        correctLevel: QRCode.CorrectLevel.M
+                    });
+                } catch (e) {
+                    alert('QR 코드를 생성하는 중 오류가 발생했습니다.');
+                    return;
+                }
+                urlText.textContent = url;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+            function closeModal() {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+
+            document.querySelectorAll('.share-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const url = btn.dataset.url || window.location.href;
+                    openModal(url);
+                });
+            });
+            closeBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+        })();
+    </script>
 </body>
 </html>
