@@ -89,5 +89,15 @@ def result(request):
     except RefreshError:
         if 'youtube_credentials' in request.session:
             del request.session['youtube_credentials']
-        
         return redirect('recommendation:youtube_authorize')
+
+    except Exception as e:
+        request.session['error_message'] = str(e)
+        return redirect('recommendation:error_page')
+
+
+def error_page(request):
+    error_message = request.session.pop('error_message', None)
+    if not error_message:
+        error_message = '에러가 일어나지 않았어요! 왜 온거죠?'
+    return render(request, 'error.html', {'error_message': error_message})
