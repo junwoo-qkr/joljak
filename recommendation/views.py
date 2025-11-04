@@ -101,3 +101,7 @@ def error_page(request):
     if not error_message:
         error_message = '에러가 일어나지 않았어요! 왜 온거죠?'
     return render(request, 'error.html', {'error_message': error_message})
+
+
+def contact(request):
+    return render(request, 'contact.html')

@@ -22,7 +22,7 @@ GOOGLE_WEB_CONFIG = {
     }
 }
 
-DEBUG = True if env('DEBUG') == True else False
+DEBUG = env('DEBUG')
 
 YOUTUBE_SCOPES = ['https://www.googleapis.com/auth/youtube']
 
